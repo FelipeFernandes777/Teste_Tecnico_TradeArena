@@ -2,13 +2,14 @@ package com.inventory_service.api.service;
 
 import com.inventory_service.api.dto.CreateProductDTO;
 import com.inventory_service.api.dto.ResponseProductDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ProductServicesInterface {
     ResponseProductDTO createProduct(CreateProductDTO data);
-    List<ResponseProductDTO> getAllProducts();
+    Page<ResponseProductDTO> getAllProducts(Pageable pageable);
     Optional<ResponseProductDTO> getProductForId(String productId);
     void health();
 }

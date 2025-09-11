@@ -5,6 +5,8 @@ import com.inventory_service.api.dto.ResponseProductDTO;
 import com.inventory_service.api.model.ProductModel;
 import com.inventory_service.api.repository.ProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +16,6 @@ import java.util.Optional;
 
 @Service
 public class ProductServices implements ProductServicesInterface{
-
     private ProductRepository repository;
 
     public ProductServices(ProductRepository productRepository) {
@@ -39,7 +40,7 @@ public class ProductServices implements ProductServicesInterface{
     }
 
     @Override
-    public List<ResponseProductDTO> getAllProducts() {
+    public Page<ResponseProductDTO> getAllProducts(Pageable pageable) {
         return List.of();
     }
 
