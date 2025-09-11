@@ -3,9 +3,10 @@ package com.inventory_service.api.dto;
 import com.inventory_service.api.model.ProductModel;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record ResponseProductDTO(
-        String id,
+        UUID id,
         String name,
         String sku,
         Float price,

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CurrentTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Table(name = "products")
 @Entity(name = "product")
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 public class ProductModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue
+    private UUID id;
     private String sku;
     private String name;
     private Float price;

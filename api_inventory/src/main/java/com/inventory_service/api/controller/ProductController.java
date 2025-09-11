@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Map;
+import java.util.UUID;
 
 //TODO finalizar api com o metodo path
 
@@ -54,7 +55,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseProductDTO> getProductForId(@PathVariable String id) {
+    public ResponseEntity<ResponseProductDTO> getProductForId(@PathVariable UUID id) {
         var  products = this.productServices.getProductForId(id);
         return ResponseEntity.ok().body(products);
     }
@@ -70,7 +71,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ResponseProductDTO> adjustStock(@PathVariable String id, @RequestParam int quantity) {
+    public ResponseEntity<ResponseProductDTO> adjustStock(@PathVariable UUID id, @RequestParam int quantity) {
         ResponseProductDTO updatedStock = productServices.adjustStock(id, quantity);
         return ResponseEntity.ok().body(updatedStock);
     }

@@ -11,7 +11,7 @@ import com.inventory_service.api.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;;
+import org.springframework.stereotype.Service;;import java.util.UUID;
 
 @Service
 public class ProductServices implements ProductServicesInterface{
@@ -55,9 +55,9 @@ public class ProductServices implements ProductServicesInterface{
     }
 
     @Override
-    public ResponseProductDTO getProductForId(String productId) {
+    public ResponseProductDTO getProductForId(UUID productId) {
         try {
-            if(productId.isEmpty()) {
+            if(productId == null) {
                 throw new DataValueIsMissingException("Product ID is empty");
             }
             ProductModel product = this.repository.findById(productId).orElseThrow(NotFoundProductByIdException::new);
@@ -70,7 +70,7 @@ public class ProductServices implements ProductServicesInterface{
 
     @Override
     @Transactional
-    public ResponseProductDTO adjustStock(String productId, int quantity) {
+    public ResponseProductDTO adjustStock(UUID productId, int quantity) {
         ProductModel product = repository.findById(productId)
                 .orElseThrow(() -> new NotFoundProductByIdException("Product not found with ID: " + productId));
 
