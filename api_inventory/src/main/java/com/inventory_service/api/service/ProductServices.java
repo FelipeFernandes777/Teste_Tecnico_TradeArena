@@ -2,17 +2,16 @@ package com.inventory_service.api.service;
 
 import com.inventory_service.api.dto.CreateProductDTO;
 import com.inventory_service.api.dto.ResponseProductDTO;
+import com.inventory_service.api.exceptions.DataValueIsMissingException;
+import com.inventory_service.api.exceptions.FailedToCreateANewProductException;
+import com.inventory_service.api.exceptions.NotFoundProductByIdException;
+import com.inventory_service.api.exceptions.NotFoundProductsException;
 import com.inventory_service.api.model.ProductModel;
 import com.inventory_service.api.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-
-//TODO criar middleware de exception
+import org.springframework.stereotype.Service;;
 
 @Service
 public class ProductServices implements ProductServicesInterface{
@@ -27,15 +26,15 @@ public class ProductServices implements ProductServicesInterface{
     public ResponseProductDTO createProduct(CreateProductDTO data) {
         try {
             if(data.name().isEmpty() || data.sku().isEmpty() || data.price() == 0 || data.stock() == 0) {
-                throw new Exception("All fields are required");
+                throw new DataValueIsMissingException();
             }
 
             var newProduct = new ProductModel(data);
             this.repository.save(newProduct);
 
             return new ResponseProductDTO(newProduct);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (FailedToCreateANewProductException e) {
+            throw new FailedToCreateANewProductException(e.getMessage());
         }
     }
 
@@ -45,12 +44,13 @@ public class ProductServices implements ProductServicesInterface{
             Page<ProductModel> products = this.repository.findAll(pageable);
 
             if(!products.hasContent()) {
-                throw new RuntimeException("Product list is empty");
+                throw new NotFoundProductsException("Product list is empty");
             }
 
             return products.map(ResponseProductDTO::new);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+
+        } catch (NotFoundProductsException e) {
+            throw new NotFoundProductsException(e.getMessage());
         }
     }
 
@@ -58,13 +58,13 @@ public class ProductServices implements ProductServicesInterface{
     public ResponseProductDTO getProductForId(String productId) {
         try {
             if(productId.isEmpty()) {
-                throw new RuntimeException("Product ID is empty");
+                throw new DataValueIsMissingException("Product ID is empty");
             }
-            ProductModel product = this.repository.findById(productId).orElseThrow(RuntimeException::new);
+            ProductModel product = this.repository.findById(productId).orElseThrow(NotFoundProductByIdException::new);
 
             return new ResponseProductDTO(product);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        } catch (NotFoundProductByIdException e) {
+            throw new NotFoundProductByIdException(e.getMessage());
         }
     }
 
