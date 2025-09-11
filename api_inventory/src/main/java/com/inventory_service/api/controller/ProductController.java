@@ -14,8 +14,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Map;
 
+//TODO finalizar api com o metodo path
+
+
 @RestController
-@RequestMapping("products")
+@RequestMapping("/products")
 public class ProductController {
     private final DefaultTransactionDefinition defaultTransactionDefinition;
     private ProductServices productServices;
@@ -25,7 +28,7 @@ public class ProductController {
         this.defaultTransactionDefinition = defaultTransactionDefinition;
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public ResponseEntity<ResponseProductDTO> create(@RequestBody CreateProductDTO data) {
         var newProduct = productServices.createProduct(data);
 
@@ -38,7 +41,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).location(location).body(newProduct);
     }
 
-    @GetMapping("/")
+    @GetMapping()
     public ResponseEntity<Page<ResponseProductDTO>> getProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
