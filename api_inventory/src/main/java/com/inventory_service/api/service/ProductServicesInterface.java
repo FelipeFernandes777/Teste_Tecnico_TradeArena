@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface ProductServicesInterface {
     ResponseProductDTO createProduct(CreateProductDTO data);
     Page<ResponseProductDTO> getAllProducts(Pageable pageable);
-    Optional<ResponseProductDTO> getProductForId(String productId);
+    ResponseProductDTO getProductForId(String productId);
     void health();
 }

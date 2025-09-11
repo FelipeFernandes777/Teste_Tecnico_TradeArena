@@ -41,12 +41,31 @@ public class ProductServices implements ProductServicesInterface{
 
     @Override
     public Page<ResponseProductDTO> getAllProducts(Pageable pageable) {
-        return List.of();
+        try {
+            Page<ProductModel> products = this.repository.findAll(pageable);
+
+            if(!products.hasContent()) {
+                throw new RuntimeException("Product list is empty");
+            }
+
+            return products.map(ResponseProductDTO::new);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public Optional<ResponseProductDTO> getProductForId(String productId) {
-        return Optional.empty();
+    public ResponseProductDTO getProductForId(String productId) {
+        try {
+            if(productId.isEmpty()) {
+                throw new RuntimeException("Product ID is empty");
+            }
+            ProductModel product = this.repository.findById(productId).orElseThrow(RuntimeException::new);
+
+            return new ResponseProductDTO(product);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
