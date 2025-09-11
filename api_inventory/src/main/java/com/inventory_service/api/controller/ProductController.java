@@ -68,4 +68,10 @@ public class ProductController {
                 )
         );
     }
+
+    @PatchMapping("/{id}/stock")
+    public ResponseEntity<ResponseProductDTO> adjustStock(@PathVariable String id, @RequestParam int quantity) {
+        ResponseProductDTO updatedStock = productServices.adjustStock(id, quantity);
+        return ResponseEntity.ok().body(updatedStock);
+    }
 }

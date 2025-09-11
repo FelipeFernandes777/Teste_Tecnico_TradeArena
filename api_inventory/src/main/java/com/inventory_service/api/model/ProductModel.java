@@ -33,4 +33,8 @@ public class ProductModel {
         this.stock = data.stock();
         this.sku = data.sku();
     }
+
+    public void changeStock(int newStock) {
+        this.stock = newStock;
+    }
 }

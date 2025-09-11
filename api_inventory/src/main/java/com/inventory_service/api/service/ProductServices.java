@@ -67,4 +67,23 @@ public class ProductServices implements ProductServicesInterface{
             throw new NotFoundProductByIdException(e.getMessage());
         }
     }
+
+    @Override
+    @Transactional
+    public ResponseProductDTO adjustStock(String productId, int quantity) {
+        ProductModel product = repository.findById(productId)
+                .orElseThrow(() -> new NotFoundProductByIdException("Product not found with ID: " + productId));
+
+        int newStock = product.getStock() + quantity;
+
+        if (newStock < 0) {
+            throw new DataValueIsMissingException("Not enough stock to remove " + quantity);
+        }
+
+        product.changeStock(newStock);
+
+        repository.save(product);
+
+        return new ResponseProductDTO(product);
+    }
 }
