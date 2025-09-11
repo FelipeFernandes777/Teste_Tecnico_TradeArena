@@ -1,5 +1,6 @@
 package com.inventory_service.api.model;
 
+import com.inventory_service.api.dto.CreateProductDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -25,4 +26,11 @@ public class ProductModel {
     private int stock;
     @CurrentTimestamp
     private LocalDateTime createdAt;
+
+    public ProductModel(CreateProductDTO data) {
+        this.name = data.name();
+        this.price = data.price();
+        this.stock = data.stock();
+        this.sku = data.sku();
+    }
 }
