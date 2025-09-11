@@ -1,18 +1,18 @@
 package com.inventory_service.api.dto;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateProductDTO(
-        @NotNull
+        @NotBlank
         String sku,
-        @NotNull
-        @Min(1)
+        @NotBlank
         String name,
         @NotNull
         @Min(1)
         Float price,
-        @NotNull
+        @Min(0)
         int stock
 ) {
 }
