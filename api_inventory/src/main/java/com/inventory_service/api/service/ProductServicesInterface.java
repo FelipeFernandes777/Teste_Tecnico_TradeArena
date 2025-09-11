@@ -11,5 +11,4 @@ public interface ProductServicesInterface {
     ResponseProductDTO createProduct(CreateProductDTO data);
     Page<ResponseProductDTO> getAllProducts(Pageable pageable);
     ResponseProductDTO getProductForId(String productId);
-    void health();
 }

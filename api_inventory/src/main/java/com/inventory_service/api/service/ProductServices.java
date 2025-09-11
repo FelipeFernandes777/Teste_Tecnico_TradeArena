@@ -67,9 +67,4 @@ public class ProductServices implements ProductServicesInterface{
             throw new NotFoundProductByIdException(e.getMessage());
         }
     }
-
-    @Override
-    public void health() {
-
-    }
 }
