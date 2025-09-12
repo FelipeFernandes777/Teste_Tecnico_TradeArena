@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: dev-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: trade_arena
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]  # ← CORRIGIDO para "admin"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - devnet
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: dev-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - devnet
+
+  inventory-api:
+    build:
+      context: ./api_inventory
+      dockerfile: Dockerfile
+    container_name: dev-inventory-api
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/trade_arena
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: admin
+      PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - devnet
+
+networks:
+  devnet:
+
+volumes:
+  postgres-data:
+  pgadmin-data:
