@@ -1,6 +1,9 @@
 package com.inventory_service.api.dto;
 
 import com.inventory_service.api.model.ProductModel;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
