@@ -8,25 +8,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Map;
 import java.util.UUID;
 
-//TODO finalizar api com o metodo path
-
-
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-    private final DefaultTransactionDefinition defaultTransactionDefinition;
     private ProductServices productServices;
 
-    public ProductController(ProductServices productServices, DefaultTransactionDefinition defaultTransactionDefinition) {
+    public ProductController(ProductServices productServices) {
         this.productServices = productServices;
-        this.defaultTransactionDefinition = defaultTransactionDefinition;
     }
 
     @PostMapping()
