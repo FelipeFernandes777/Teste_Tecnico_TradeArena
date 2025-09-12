@@ -7,8 +7,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Table(name = "order_items")
-@Entity(name = "item")
+@Table(name = "order_item")
+@Entity(name = "order_item")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,12 +22,12 @@ public class OrderItemModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private OrderModel order_id;
+    private OrderModel order;
 
-    private UUID productId;
+    private UUID product_id;
 
     private Integer qty;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(name = "unit_price", nullable = false, precision = 15, scale = 2)
     private BigDecimal unitPrice;
 }
