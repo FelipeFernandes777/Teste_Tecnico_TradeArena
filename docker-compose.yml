@@ -54,6 +54,23 @@ services:
         condition: service_healthy
     networks:
       - devnet
+  order-api:
+    build:
+      context: ./api_order
+      dockerfile: Dockerfile
+    container_name: dev-order-api
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/trade_arena
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: admin
+      PROFILES_ACTIVE: docker
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - devnet
 
 networks:
   devnet:
