@@ -25,7 +25,7 @@ public class ProductServices implements ProductServicesInterface{
     @Transactional
     public ResponseProductDTO createProduct(CreateProductDTO data) {
         try {
-            if(data.name().isEmpty() || data.sku().isEmpty() || data.price() == 0 || data.stock() == 0) {
+            if(data.name().isEmpty() || data.sku().isEmpty() || data.price() == null || data.stock() == 0) {
                 throw new DataValueIsMissingException();
             }
 

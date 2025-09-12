@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CurrentTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,7 +24,8 @@ public class ProductModel {
     private UUID id;
     private String sku;
     private String name;
-    private Float price;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
     private int stock;
     @CurrentTimestamp
     private LocalDateTime createdAt;
