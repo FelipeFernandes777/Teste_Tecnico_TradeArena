@@ -1,4 +1,4 @@
-package com.api_order.exceptions.order;
+package com.api_order.exceptions.client;
 
 public class ServiceUnavailableException extends RuntimeException {
     public ServiceUnavailableException(String message) {
