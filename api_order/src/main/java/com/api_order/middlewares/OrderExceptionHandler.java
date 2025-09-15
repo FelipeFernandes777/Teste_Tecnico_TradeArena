@@ -1,6 +1,7 @@
 package com.api_order.middlewares;
 
 import com.api_order.exceptions.order.InsufficientStockException;
+import com.api_order.exceptions.order.OrderAlreadyCancelledException;
 import com.api_order.exceptions.order.OrderNotFoundException;
 import com.api_order.exceptions.order.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -15,11 +16,11 @@ public class OrderExeceptionHandler {
 
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<?> handleInsufficientStockException(InsufficientStockException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
                 Map.of(
                         "status", "alert",
                         "message", e.getMessage(),
-                        "statusCode", HttpStatus.BAD_REQUEST
+                        "statusCode", HttpStatus.UNPROCESSABLE_ENTITY
                 )
         );
     }
@@ -42,6 +43,17 @@ public class OrderExeceptionHandler {
                         "status", "alert",
                         "message", e.getMessage(),
                         "statusCode", HttpStatus.NOT_FOUND
+                )
+        );
+    }
+
+    @ExceptionHandler(OrderAlreadyCancelledException.class)
+    public ResponseEntity<?> handleProductNotFoundException(OrderAlreadyCancelledException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "status", "alert",
+                        "message", e.getMessage(),
+                        "statusCode", HttpStatus.CONFLICT
                 )
         );
     }
