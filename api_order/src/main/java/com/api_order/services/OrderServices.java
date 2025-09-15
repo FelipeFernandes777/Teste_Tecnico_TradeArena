@@ -17,6 +17,7 @@ import com.api_order.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 //TODO criar exceptions and exception handler
 
+@Service
 public class OrderServices implements IOrderServices {
 
     private final OrderRepository orderRepository;
