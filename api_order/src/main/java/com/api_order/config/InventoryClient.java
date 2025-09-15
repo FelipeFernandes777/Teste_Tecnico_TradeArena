@@ -1,5 +1,6 @@
 package com.api_order.config;
 
+import com.api_order.dto.inventory.ResponseProductDTO;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,6 +9,7 @@ import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class InventoryClient {
@@ -54,6 +56,15 @@ public class InventoryClient {
         }
 
         return null;
+    }
+
+    public ResponseProductDTO getProduct(UUID productId) {
+        return request(HttpMethod.GET, "/products/" + productId, null, ResponseProductDTO.class);
+    }
+
+    public void updateStock(UUID productId, int stockChange) {
+        Map<String, Integer> requestBody = Map.of("stockChange", stockChange);
+        request(HttpMethod.PATCH, "/products/" + productId + "/stock", requestBody, Void.class);
     }
 
     public boolean verifyIfInventoryApiIsUp() {
