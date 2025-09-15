@@ -6,6 +6,10 @@ import com.api_order.dto.item.OrderItemRequest;
 import com.api_order.dto.order.CreateOrderRequest;
 import com.api_order.dto.order.ResponseOrderDTO;
 import com.api_order.dto.order.StockDetail;
+import com.api_order.exceptions.client.ServiceUnavailableException;
+import com.api_order.exceptions.order.InsufficientStockException;
+import com.api_order.exceptions.order.OrderAlreadyCancelledException;
+import com.api_order.exceptions.order.OrderNotFoundException;
 import com.api_order.model.order.OrderModel;
 import com.api_order.model.order.OrderStatus;
 import com.api_order.model.orderItem.OrderItemModel;
@@ -22,12 +26,12 @@ import java.util.UUID;
 
 //TODO criar exceptions and exception handler
 
-public class OrderServices implements IOrderServices{
+public class OrderServices implements IOrderServices {
 
     private final OrderRepository orderRepository;
     private final InventoryClient inventoryClient;
 
-    public OrderServices(OrderRepository orderRepository,InventoryClient inventoryClient) {
+    public OrderServices(OrderRepository orderRepository, InventoryClient inventoryClient) {
         this.orderRepository = orderRepository;
         this.inventoryClient = inventoryClient;
     }
@@ -35,17 +39,18 @@ public class OrderServices implements IOrderServices{
     @Override
     @Transactional
     public ResponseOrderDTO createOrder(CreateOrderRequest data) {
-        if(!this.inventoryClient.verifyIfInventoryApiIsUp()){
-            throw new RuntimeException("Inventory service is unavailable");
+        if (!this.inventoryClient.verifyIfInventoryApiIsUp()) {
+            throw new ServiceUnavailableException("Inventory service is unavailable");
         }
 
         BigDecimal total = BigDecimal.ZERO;
-        List<StockDetail> stockProblems =  new ArrayList<>(); // SotckDetail
-        List<OrderItemModel> orderItems =  new ArrayList<>();
+        List<StockDetail> stockProblems = new ArrayList<>(); // SotckDetail
+        List<OrderItemModel> orderItems = new ArrayList<>();
 
-        for(OrderItemRequest item: data.items()) {
+        for (OrderItemRequest item : data.items()) {
+            ResponseProductDTO product = null;
             try {
-                ResponseProductDTO product = this.inventoryClient.getProduct(item.productId()); // Percore a lista e pega o item com o id informado
+                product = this.inventoryClient.getProduct(item.productId());
 
                 if (product.stock() < item.qty()) {
                     stockProblems.add(new StockDetail(
@@ -53,6 +58,7 @@ public class OrderServices implements IOrderServices{
                             item.qty(),
                             product.stock()
                     ));
+                    continue; // Não para o loop
                 }
 
                 this.inventoryClient.updateStock(item.productId(), -item.qty()); // Já pega o stock do produto e subtrai pela quantidade informada
@@ -67,12 +73,13 @@ public class OrderServices implements IOrderServices{
 
                 orderItems.add(orderItem);
 
-            } catch (RuntimeException e) {
-                throw new RuntimeException("Error processing product: " + item.productId(), e);
+            } catch (InsufficientStockException e) {
+                assert product != null;
+                throw new InsufficientStockException(item.productId(), item.qty(), product.stock());
             }
         }
         if (!stockProblems.isEmpty()) {
-            throw new RuntimeException("Insufficient stock");
+            throw new InsufficientStockException("Insufficient stock for order");
         }
 
         OrderModel order = new OrderModel();
@@ -88,28 +95,28 @@ public class OrderServices implements IOrderServices{
     @Override
     public ResponseOrderDTO getOrderForId(UUID orderId) {
         try {
-            var order =  orderRepository.findById(orderId)
-                    .orElseThrow(RuntimeException::new);
+            var order = orderRepository.findById(orderId)
+                    .orElseThrow(OrderNotFoundException::new);
 
             return new ResponseOrderDTO(order);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (OrderNotFoundException e) {
+            throw new OrderNotFoundException();
         }
     }
 
     @Override
     public Page<ResponseOrderDTO> getOrders(Pageable pageable) {
         try {
-            Page<OrderModel> order =  orderRepository.findAll(pageable);
+            Page<OrderModel> order = orderRepository.findAll(pageable);
 
-            if(!order.hasContent()){
-                throw new RuntimeException("Orders empty");
+            if (!order.hasContent()) {
+                throw new OrderNotFoundException("Orders empty");
             }
 
             return order.map(ResponseOrderDTO::new);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (OrderNotFoundException e) {
+            throw new OrderNotFoundException();
         }
     }
 
@@ -117,13 +124,22 @@ public class OrderServices implements IOrderServices{
     @Transactional
     public void cancelOrder(UUID orderId) {
         try {
-            var order =  orderRepository.findById(orderId)
-                    .orElseThrow(RuntimeException::new);
+            OrderModel order = orderRepository.findById(orderId)
+                    .orElseThrow(OrderNotFoundException::new);
 
+            if(order.getStatus().equals(OrderStatus.CANCELLED)) {
+                throw new OrderAlreadyCancelledException(order.getId());
+            }
 
+            order.getItems().forEach(item ->
+                    inventoryClient.updateStock(item.getProduct_id(), item.getQty())
+            );
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+
+        } catch (OrderNotFoundException | OrderAlreadyCancelledException e) {
+            throw new OrderNotFoundException();
         }
     }
 }
