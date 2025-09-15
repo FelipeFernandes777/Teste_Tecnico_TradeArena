@@ -7,6 +7,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.util.Map;
 
 @Service
 public class InventoryClient {
@@ -55,9 +56,10 @@ public class InventoryClient {
         return null;
     }
 
-    public Boolean verifyIfInventoryApiIsUp() {
+    public boolean verifyIfInventoryApiIsUp() {
         try {
-            return request(HttpMethod.GET, "/health", null, Boolean.class);
+            Map response = request(HttpMethod.GET, "/health", null, Map.class);
+            return (boolean) response.get("status");
         } catch (Exception e) {
             return false;
         }
