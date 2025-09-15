@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Map;
 
 @ControllerAdvice
-public class OrderExeceptionHandler {
+public class OrderExceptionHandler {
 
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<?> handleInsufficientStockException(InsufficientStockException e) {
@@ -48,7 +48,7 @@ public class OrderExeceptionHandler {
     }
 
     @ExceptionHandler(OrderAlreadyCancelledException.class)
-    public ResponseEntity<?> handleProductNotFoundException(OrderAlreadyCancelledException e) {
+    public ResponseEntity<?> handleOrderAlreadyCancelledException(OrderAlreadyCancelledException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 Map.of(
                         "status", "alert",
@@ -59,7 +59,7 @@ public class OrderExeceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e) {
+    public ResponseEntity<?> handleGenericException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of(
                         "status", "error",
@@ -69,4 +69,3 @@ public class OrderExeceptionHandler {
         );
     }
 }
-

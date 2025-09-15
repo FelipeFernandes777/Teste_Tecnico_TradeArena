@@ -1,7 +1,6 @@
 package com.api_order.middlewares;
 
 import com.api_order.exceptions.client.ServiceUnavailableException;
-import com.api_order.exceptions.order.InsufficientStockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,7 +12,7 @@ import java.util.Map;
 public class ClientExceptionHandler {
 
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<?> handleInsufficientStockException(ServiceUnavailableException e) {
+    public ResponseEntity<?> handleServiceUnavailableException(ServiceUnavailableException e) {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
                 Map.of(
                         "status", "error",
