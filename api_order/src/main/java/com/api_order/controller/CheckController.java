@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/test")
-public class TController {
+@RequestMapping("/inventory-api")
+public class CheckController {
     private final InventoryClient inventoryClient;
 
-    public TController(InventoryClient inventoryClient) {
+    public CheckController(InventoryClient inventoryClient) {
         this.inventoryClient = inventoryClient;
     }
 
-    @GetMapping("/inventory-status")
+    @GetMapping("/status")
     public Map<String, Object> checkInventoryStatus() {
         boolean isUp = inventoryClient.verifyIfInventoryApiIsUp();
         return Map.of(
