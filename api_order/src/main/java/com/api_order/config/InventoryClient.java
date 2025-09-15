@@ -29,7 +29,7 @@ public class InventoryClient {
     }
 
     // Método genérico para qualquer requisição
-    public <T> T request(HttpMethod method, String uri, Object body, Class<T> responseType) {
+    private <T> T request(HttpMethod method, String uri, Object body, Class<T> responseType) {
         int attempts = 0;
 
         while (attempts < maxAttempts) {
