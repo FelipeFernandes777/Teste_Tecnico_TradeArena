@@ -1,4 +1,4 @@
-package com.api_order.dto;
+package com.api_order.dto.order;
 
 public record ResponseOrderDTO(
 

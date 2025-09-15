@@ -1,4 +1,10 @@
 package com.api_order.dto.order;
 
-public record StockDetail() {
+import java.util.UUID;
+
+public record StockDetail(
+        UUID productId,
+        int requested,
+        int available
+) {
 }
