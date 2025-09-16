@@ -46,102 +46,89 @@ public class OrderServices implements IOrderServices {
         }
 
         BigDecimal total = BigDecimal.ZERO;
-        List<StockDetail> stockProblems = new ArrayList<>(); // SotckDetail
+        List<StockDetail> stockProblems = new ArrayList<>();
         List<OrderItemModel> orderItems = new ArrayList<>();
 
         for (OrderItemRequest item : data.items()) {
-            ResponseProductDTO product = null;
-            try {
-                product = this.inventoryClient.getProduct(item.productId());
+            ResponseProductDTO product = this.inventoryClient.getProduct(item.productId());
 
-                if (product.stock() < item.qty()) {
-                    stockProblems.add(new StockDetail(
-                            item.productId(),
-                            item.qty(),
-                            product.stock()
-                    ));
-                    continue; // Não para o loop
-                }
-
-                this.inventoryClient.updateStock(item.productId(), -item.qty()); // Já pega o stock do produto e subtrai pela quantidade informada
-
-                BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(item.qty())); // Pega o valor do item e já multiplica pela quantidade
-                total = total.add(itemTotal);
-
-                OrderItemModel orderItem = new OrderItemModel();
-                orderItem.setProduct_id(item.productId());
-                orderItem.setQty(item.qty());
-                orderItem.setUnitPrice(product.price());
-
-                orderItems.add(orderItem);
-
-            } catch (InsufficientStockException e) {
-                assert product != null;
+            if (product.stock() < item.qty()) {
                 throw new InsufficientStockException(item.productId(), item.qty(), product.stock());
             }
+
+            this.inventoryClient.updateStock(item.productId(), -item.qty());
+
+            BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(item.qty()));
+            total = total.add(itemTotal);
+
+            OrderItemModel orderItem = new OrderItemModel();
+            orderItem.setProduct_id(item.productId());
+            orderItem.setQty(item.qty());
+            orderItem.setUnitPrice(product.price());
+
+            orderItems.add(orderItem);
         }
         if (!stockProblems.isEmpty()) {
             throw new InsufficientStockException("Insufficient stock for order");
         }
 
+        // Cria o pedido sem os itens primeiro
         OrderModel order = new OrderModel();
         order.setStatus(OrderStatus.CREATED);
         order.setTotal(total);
-        order.setItems(orderItems);
         order.setCreatedAt(LocalDateTime.now());
 
+        // Salva para gerar o ID
         OrderModel savedOrder = orderRepository.save(order);
+
+        // Agora define o order_id nos itens
+        for (OrderItemModel item : orderItems) {
+            item.setOrder(savedOrder); // <-- aqui é crucial
+        }
+
+        savedOrder.setItems(orderItems);
+
+        // Salva novamente com os itens associados
+        savedOrder = orderRepository.save(savedOrder);
+
         return new ResponseOrderDTO(savedOrder);
     }
 
     @Override
     public ResponseOrderDTO getOrderForId(UUID orderId) {
-        try {
-            var order = orderRepository.findById(orderId)
-                    .orElseThrow(OrderNotFoundException::new);
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
 
-            return new ResponseOrderDTO(order);
-        } catch (OrderNotFoundException e) {
-            throw new OrderNotFoundException();
-        }
+        return new ResponseOrderDTO(order);
     }
 
     @Override
     public Page<ResponseOrderDTO> getOrders(Pageable pageable) {
-        try {
-            Page<OrderModel> order = orderRepository.findAll(pageable);
+        Page<OrderModel> order = orderRepository.findAll(pageable);
 
-            if (!order.hasContent()) {
-                throw new OrderNotFoundException("Orders empty");
-            }
-
-            return order.map(ResponseOrderDTO::new);
-
-        } catch (OrderNotFoundException e) {
-            throw new OrderNotFoundException();
+        if (!order.hasContent()) {
+            throw new OrderNotFoundException("Orders empty");
         }
+
+        return order.map(ResponseOrderDTO::new);
     }
 
     @Override
     @Transactional
     public void cancelOrder(UUID orderId) {
-        try {
-            OrderModel order = orderRepository.findById(orderId)
-                    .orElseThrow(OrderNotFoundException::new);
+        OrderModel order = orderRepository.findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
 
-            if(order.getStatus().equals(OrderStatus.CANCELLED)) {
-                throw new OrderAlreadyCancelledException(order.getId());
-            }
-
-            order.getItems().forEach(item ->
-                    inventoryClient.updateStock(item.getProduct_id(), item.getQty())
-            );
-
-            order.setStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-
-        } catch (OrderNotFoundException | OrderAlreadyCancelledException e) {
-            throw new OrderNotFoundException();
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new OrderAlreadyCancelledException(order.getId());
         }
+
+        // Restaura o estoque
+        for (OrderItemModel item : order.getItems()) {
+            inventoryClient.updateStock(item.getProduct_id(), item.getQty());
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
     }
 }
