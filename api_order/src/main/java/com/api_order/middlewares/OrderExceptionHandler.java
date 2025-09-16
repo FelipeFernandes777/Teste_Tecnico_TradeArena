@@ -58,13 +58,19 @@ public class OrderExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGenericException(Exception e) {
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleGenericRuntime(RuntimeException ex) {
+        if (ex instanceof InsufficientStockException ||
+                ex instanceof OrderAlreadyCancelledException ||
+                ex instanceof ProductNotFoundException ||
+                ex instanceof OrderNotFoundException) {
+            throw ex;
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of(
+                        "statusCode", HttpStatus.INTERNAL_SERVER_ERROR,
                         "status", "error",
-                        "message", e.getMessage(),
-                        "statusCode", HttpStatus.INTERNAL_SERVER_ERROR
+                        "message", "An unexpected error occurred: " + ex.getMessage()
                 )
         );
     }
