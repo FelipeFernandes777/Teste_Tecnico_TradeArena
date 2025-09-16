@@ -58,13 +58,14 @@ public class InventoryClient {
         return null;
     }
 
-    public ResponseProductDTO getProduct(UUID productId) {
-        return request(HttpMethod.GET, "/products/" + productId, null, ResponseProductDTO.class);
+    public ResponseProductDTO getProduct(UUID id) {
+        System.out.println("Testing Inventory API at: http://localhost:8080/products/" + id);
+        return request(HttpMethod.GET, "/" + id, null, ResponseProductDTO.class);
     }
 
     public void updateStock(UUID productId, int stockChange) {
-        Map<String, Integer> requestBody = Map.of("stockChange", stockChange);
-        request(HttpMethod.PATCH, "/products/" + productId + "/stock", requestBody, Void.class);
+        String uri = "/" + productId + "/stock?quantity=" + stockChange;
+        request(HttpMethod.PATCH, uri, null, ResponseProductDTO.class);
     }
 
     public boolean verifyIfInventoryApiIsUp() {
