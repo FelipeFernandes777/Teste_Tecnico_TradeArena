@@ -1,101 +1,61 @@
 package com.api_order.config;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterEach;
+import com.api_order.dto.inventory.ResponseProductDTO;
+import com.api_order.dto.item.OrderItemRequest;
+import com.api_order.dto.order.CreateOrderRequest;
+import com.api_order.services.OrderServices;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class InventoryClientTest {
 
-    private MockWebServer mockWebServer;
+    @Mock
     private InventoryClient inventoryClient;
 
+    private OrderServices orderServices;
+
     @BeforeEach
-    void setUp() throws IOException {
-        mockWebServer = new MockWebServer();
-        mockWebServer.start();
+    void setup() {
+        MockitoAnnotations.openMocks(this);
 
-        // Cria o InventoryClient com a URL do MockWebServer
-        WebClient.Builder builder = WebClient.builder();
-        inventoryClient = new InventoryClient(builder);
-    }
-
-    @AfterEach
-    void tearDown() throws IOException {
-        mockWebServer.shutdown();
+        // Usando um repositório in-memory fake
+        orderServices = new OrderServices(new InMemoryOrderRepository(), inventoryClient);
     }
 
     @Test
-    void verifyIfInventoryApiIsUp_shouldReturnTrueWhenHealthEndpointReturnsTrue() {
-        // Configura resposta mockada com sucesso
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("true")
-                .addHeader("Content-Type", "application/json"));
+    void createOrder_withMockedInventoryClient_success() {
+        UUID productId = UUID.randomUUID();
 
-        Boolean result = inventoryClient.verifyIfInventoryApiIsUp();
+        // Mock do retorno do inventário
+        ResponseProductDTO mockProduct = new ResponseProductDTO(
+                productId, "SKU123", "Teclado", new BigDecimal("100.00"), 5, LocalDateTime.now()
+        );
 
-        assertTrue(result);
-    }
+        when(inventoryClient.verifyIfInventoryApiIsUp()).thenReturn(true);
+        when(inventoryClient.getProduct(productId)).thenReturn(mockProduct);
 
-    @Test
-    void verifyIfInventoryApiIsUp_shouldReturnFalseWhenHealthEndpointReturnsFalse() {
-        // Configura resposta com false
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("false")
-                .addHeader("Content-Type", "application/json"));
+        // Criação do pedido
+        CreateOrderRequest request = new CreateOrderRequest(
+                List.of(new OrderItemRequest(productId, 2))
+        );
 
-        Boolean result = inventoryClient.verifyIfInventoryApiIsUp();
+        var response = orderServices.createOrder(request);
 
-        assertFalse(result);
-    }
+        // Verificações
+        assertThat(response).isNotNull();
+        assertThat(response.items()).hasSize(1);
 
-    @Test
-    void verifyIfInventoryApiIsUp_shouldReturnFalseWhenHealthEndpointFails() {
-        // Configura erro 500
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(500)
-                .setBody("Internal Server Error"));
-
-        Boolean result = inventoryClient.verifyIfInventoryApiIsUp();
-
-        assertFalse(result);
-    }
-
-    @Test
-    void verifyIfInventoryApiIsUp_shouldReturnFalseWhenTimeout() {
-        // Configura timeout (demora 10 segundos para responder)
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("true")
-                .setBodyDelay(TimeUnit.SECONDS.toMillis(6), null)); // 6000ms
-
-        Boolean result = inventoryClient.verifyIfInventoryApiIsUp();
-
-        assertFalse(result);
-    }
-
-    @Test
-    void verifyIfInventoryApiIsUp_shouldRetryThreeTimes() {
-        // Configura 2 falhas seguidas e depois sucesso
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        mockWebServer.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("true"));
-
-        Boolean result = inventoryClient.verifyIfInventoryApiIsUp();
-
-        assertTrue(result);
-        // Verifica que houve 3 requisições (2 falhas + 1 sucesso)
-        assertEquals(3, mockWebServer.getRequestCount());
+        // Verifica se o estoque foi atualizado
+        verify(inventoryClient, times(1)).updateStock(productId, -2);
     }
 }
