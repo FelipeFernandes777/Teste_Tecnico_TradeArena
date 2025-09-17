@@ -1,6 +1,7 @@
 package com.api_order.config;
 
 import com.api_order.dto.inventory.ResponseProductDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,12 +19,15 @@ public class InventoryClient {
     private final int maxAttempts = 3;
     private final Duration requestTimeout = Duration.ofSeconds(5);
 
-    public InventoryClient(WebClient.Builder builder) {
+    public InventoryClient(WebClient.Builder builder,
+                           @Value("${INVENTORY_API}")
+                           String url
+    ) {
         HttpClient httpClient = HttpClient.create()
                 .responseTimeout(Duration.ofSeconds(3));
 
         this.webClient = builder
-                .baseUrl("http://localhost:8080/products")
+                .baseUrl(url)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }
