@@ -21,19 +21,5 @@ public class ClientExceptionHandler {
                 )
         );
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleException(RuntimeException e) {
-        if (e instanceof ServiceUnavailableException) {
-            throw e;
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                Map.of(
-                        "status", "error",
-                        "message", e.getMessage(),
-                        "statusCode", HttpStatus.INTERNAL_SERVER_ERROR
-                )
-        );
-    }
 }
 
