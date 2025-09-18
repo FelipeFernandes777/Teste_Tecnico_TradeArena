@@ -47,6 +47,12 @@ As credenciais e nomes de banco já estão configurados no docker-compose.yml.
    -   Order Serivce - http://localhost:8081/swagger-ui/index.html
 ---
 
+4. Variaveis de ambiente obrigatorias:
+   - DATABASE_URL= { URL DE CONEXÃO  (ex: jdbc:postgresql://localhost5432/trade_arena)}
+   - DATABASE_USERNAME= { USUARIO DO BANCO DE DADOS (ex: postgres)}
+   - DATABASE_PASSWORD= { SENHA DO BANCO DE DADOS (ex: admin)}
+   - SECRET_KEY= { CHAVE JWT (ex: e94d3628ad2dac8e6b25261ec6c53d56)}
+
 ## 📑 Endpoints Principais
 ### <b>Inventory Service (8080) </b>
 
@@ -120,3 +126,4 @@ Felipe Fernandes de Carvalho
 
 GitHub: [linkedin.com/in/felipe-fernandes-ab7a3622a/](https://github.com/FelipeFernandes777)
 Linkedin : [linkedin.com/in/felipe-fernandes](linkedin.com/in/felipe-fernandes-ab7a3622a/)
+
