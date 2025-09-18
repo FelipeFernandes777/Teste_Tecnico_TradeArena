@@ -1,5 +1,6 @@
 package com.api_order.config;
 
+import com.api_order.config.security.FixedJwtGenerator;
 import com.api_order.dto.inventory.ResponseProductDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -18,10 +19,12 @@ public class InventoryClient {
     private final WebClient webClient;
     private final int maxAttempts = 3;
     private final Duration requestTimeout = Duration.ofSeconds(5);
+    private final FixedJwtGenerator jwtGenerator;
 
     public InventoryClient(WebClient.Builder builder,
                            @Value("${INVENTORY_API}")
-                           String url
+                           String url,
+                           FixedJwtGenerator jwtGenerator
     ) {
         HttpClient httpClient = HttpClient.create()
                 .responseTimeout(Duration.ofSeconds(3));
@@ -30,15 +33,21 @@ public class InventoryClient {
                 .baseUrl(url)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
+
+        this.jwtGenerator = jwtGenerator;
     }
 
     // Método genérico para qualquer requisição
     private <T> T request(HttpMethod method, String uri, Object body, Class<T> responseType) {
         int attempts = 0;
 
+        String token = jwtGenerator.generateToken("ORDER_API");
+
         while (attempts < maxAttempts) {
             try {
-                WebClient.RequestBodySpec requestSpec = webClient.method(method).uri(uri);
+                WebClient.RequestBodySpec requestSpec = webClient.method(method)
+                        .uri(uri)
+                        .header("Authorization", "Bearer " + token);
 
                 if (body != null) {
                     requestSpec.bodyValue(body);
