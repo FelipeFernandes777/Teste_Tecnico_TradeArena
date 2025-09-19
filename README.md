@@ -8,6 +8,11 @@ API desenvolvida para o desafio técnico da **Trade Arena**, com foco em boas pr
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)]()
 ---
 
+## * IMPORTANTE *
+   PARA QUE SEJA GERADO O CODIGO DE AUTENTICAÇÂO, TEM QUE CHAMAR A ROTA DENTRO DA API DE ORDERS QUE GERA UM TOKEN A PARTIR DO SISTEMA MESMO, SEM FAZER LOGIN.
+   E A PARTIR DESTE TOKEN, UTILIZAR EM TODA A API
+---
+
 ## 🚀 Tecnologias
 
 - **Java 17**
@@ -47,10 +52,6 @@ As credenciais e nomes de banco já estão configurados no docker-compose.yml.
    -   Order Serivce - http://localhost:8081/swagger-ui/index.html
 ---
 
-## * IMPORTANTE *
-   PARA QUE SEJA GERADO O CODIGO DE AUTENTICAÇÂO, TEM QUE CHAMAR A ROTA DENTRO DA API DE ORDERS QUE GERA UM TOKEN A PARTIR DO SISTEMA MESMO, SEM FAZER LOGIN.
-   E A PARTIR DESTE TOKEN, UTILIZAR EM TODA A API
----
 
 4. Variaveis de ambiente obrigatorias:
    - DATABASE_URL= { URL DE CONEXÃO  (ex: jdbc:postgresql://localhost5432/trade_arena)}
@@ -131,5 +132,6 @@ Felipe Fernandes de Carvalho
 
 GitHub: [linkedin.com/in/felipe-fernandes-ab7a3622a/](https://github.com/FelipeFernandes777)
 Linkedin : [linkedin.com/in/felipe-fernandes](linkedin.com/in/felipe-fernandes-ab7a3622a/)
+
 
 
