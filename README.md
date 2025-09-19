@@ -11,6 +11,10 @@ API desenvolvida para o desafio técnico da **Trade Arena**, com foco em boas pr
 ## * IMPORTANTE *
    PARA QUE SEJA GERADO O CODIGO DE AUTENTICAÇÂO, TEM QUE CHAMAR A ROTA DENTRO DA API DE ORDERS QUE GERA UM TOKEN A PARTIR DO SISTEMA MESMO, SEM FAZER LOGIN.
    E A PARTIR DESTE TOKEN, UTILIZAR EM TODA A API
+  - ```bash 
+         curl -X GET "http://localhost:8081/auth/generate" \
+              -H "Accept: application/json"
+      ```
 ---
 
 ## 🚀 Tecnologias
@@ -132,6 +136,7 @@ Felipe Fernandes de Carvalho
 
 GitHub: [linkedin.com/in/felipe-fernandes-ab7a3622a/](https://github.com/FelipeFernandes777)
 Linkedin : [linkedin.com/in/felipe-fernandes](linkedin.com/in/felipe-fernandes-ab7a3622a/)
+
 
 
 
