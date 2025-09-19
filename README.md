@@ -124,7 +124,6 @@ curl -X POST http://localhost:8081/orders/{id}/cancel
 ```
 ---
 ## ✅ Checklist
-- [x] Sobe com **1 comando** (`docker compose up`)
 - [x] **Migrações automáticas** (Flyway)
 - [x] **Documentação interativa** (Swagger)
 - [x] **Testes automatizados**
@@ -136,6 +135,7 @@ Felipe Fernandes de Carvalho
 
 GitHub: [linkedin.com/in/felipe-fernandes-ab7a3622a/](https://github.com/FelipeFernandes777)
 Linkedin : [linkedin.com/in/felipe-fernandes](linkedin.com/in/felipe-fernandes-ab7a3622a/)
+
 
 
 
